@@ -26,10 +26,7 @@
 
 This project is "zero-config" and ready for production.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/YOUR_USERNAME/cyber-visualizer.git](https://github.com/YOUR_USERNAME/cyber-visualizer.git)
-    ```
+1.  **Download index.html**
 2.  **Launch:**
     Simply open `index.html` in any modern web browser.
 

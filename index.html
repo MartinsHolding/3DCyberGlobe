@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cyber Data Globe</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+        #overlay {
+            position: absolute; top: 20px; left: 20px; color: #00ff88;
+            text-shadow: 0 0 5px #00ff88; pointer-events: none;
+        }
+        .stats { font-size: 0.8rem; opacity: 0.8; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <h1>GLOBAL DATA STREAM v1.0</h1>
+        <div class="stats">STATUS: CONNECTED</div>
+        <div class="stats">LATENCY: <span id="ping">24</span>ms</div>
+        <div class="stats">PACKETS: <span id="packets">0</span></div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const geometry = new THREE.IcosahedronGeometry(2, 15);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x0044ff,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.2
+        });
+        const globe = new THREE.Mesh(geometry, material);
+        scene.add(globe);
+
+        const coreGeo = new THREE.SphereGeometry(1.8, 32, 32);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x001133 });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(core);
+
+        // --- PARTICELLE (STELLE/DATI) ---
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 5000;
+        const posArray = new Float32Array(starsCount * 3);
+
+        for(let i = 0; i < starsCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+        }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const starsMaterial = new THREE.PointsMaterial({ size: 0.02, color: 0x00ff88 });
+        const starsMesh = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(starsMesh);
+
+        camera.position.z = 5;
+
+        const lines = [];
+        function addDataLine() {
+            const curve = new THREE.CubicBezierCurve3(
+                new THREE.Vector3( (Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4 ),
+                new THREE.Vector3( (Math.random()-0.5)*10, (Math.random()-0.5)*10, (Math.random()-0.5)*10 ),
+                new THREE.Vector3( (Math.random()-0.5)*10, (Math.random()-0.5)*10, (Math.random()-0.5)*10 ),
+                new THREE.Vector3( (Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4 )
+            );
+            const points = curve.getPoints(50);
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.8 });
+            const line = new THREE.Line(lineGeo, lineMat);
+            scene.add(line);
+            lines.push({ mesh: line, life: 1.0 });
+        }
+
+        let packetCount = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+
+            globe.rotation.y += 0.002;
+            globe.rotation.x += 0.001;
+            starsMesh.rotation.y -= 0.0005;
+
+            // Gestione linee dati (fade out)
+            if(Math.random() > 0.95) {
+                addDataLine();
+                packetCount++;
+                document.getElementById('packets').innerText = packetCount;
+            }
+
+            lines.forEach((l, index) => {
+                l.life -= 0.01;
+                l.mesh.material.opacity = l.life;
+                if(l.life <= 0) {
+                    scene.remove(l.mesh);
+                    lines.splice(index, 1);
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+
+        setInterval(() => {
+            document.getElementById('ping').innerText = Math.floor(Math.random() * 30) + 10;
+        }, 2000);
+    </script>
+</body>
+</html>

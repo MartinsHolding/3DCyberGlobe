@@ -36,9 +36,6 @@ This project is "zero-config" and ready for production.
 3.  **Live Preview:**
     *Deploy it instantly using GitHub Pages to see it in action.*
 
-## 🎮 Interface Preview
-*(Note: Add a high-quality GIF of your rotating globe here to capture immediate attention)*
-
 ---
 
 ## 🧠 Engineering Philosophy
@@ -48,10 +45,3 @@ This visualizer was engineered to demonstrate how complex buffer geometries and 
 - [ ] **Phase 2:** Integration with live WebSocket APIs (e.g., Bitcoin mempool or Global Flight Data).
 - [ ] **Phase 3:** WebXR implementation for Meta Quest & Vision Pro support.
 - [ ] **Phase 4:** Advanced Bloom and Glitch post-processing shaders.
-
----
-
-### 👨‍💻 Developed by
-**[YOUR NAME]** *Full-Stack Architect & Creative Developer*
-
-> If this project resonates with your digital soul, don't forget to drop a **Star** ⭐!
